@@ -2,11 +2,23 @@
 #include <stdio.h>
 void allocArray(int ***p, int m, int n)
 {
-   int i;
-   *p= malloc(m * sizeof(int *));
-   for(i = 0; i < m; i++){
-       (*p)[i] = malloc(n * sizeof(int));
-   }
+//   non-consecutive memory
+//   int i;
+//   *p= malloc(m  * sizeof(int *));
+//   for(i = 0; i < m; i++){
+//       (*p)[i] = malloc(n * sizeof(int));
+//   }
+
+    *p = malloc(m* sizeof(int*));
+    //init memory for each row
+    int* block = malloc(m*n*sizeof(int));
+    //init memory for whole array
+    for (int i=0;i<m;i++){
+        (*p)[i]=block+i*n;
+        //by adding block memory address let 2d array functional
+    }
+
+
 }
 
 int main()
