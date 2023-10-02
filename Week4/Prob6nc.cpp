@@ -1,9 +1,6 @@
 //
 // Created by LINBEI on 10/2/2023.
 //
-//
-// Created by LINBEI on 10/2/2023.
-//
 
 #include<iostream>
 #include<cstdlib>
@@ -28,54 +25,41 @@ public:
     }
 
     bool addElement(int e) {
-        // Check if the element already exists in the set
         Node *cur = element;
         while (cur != NULL) {
             if (cur->data == e) {
-                return false; // Element already exists, return false
+                return false;
             }
             cur = cur->next;
         }
-
-        // Create a new node for the element
         Node *newNode = new Node();
         newNode->data = e;
-
-        // Insert the new node at the beginning of the list
         newNode->next = element;
         element = newNode;
-
-        return true; // Element added successfully
+        return true;
     }
 
     Set *unions(Set *b) {
         Set *result = new Set();
         Node *cur = element;
-
-        // Add all elements from set a to the result
         while (cur != NULL) {
             result->addElement(cur->data);
             cur = cur->next;
         }
-
-        // Add elements from set b to the result (if they don't already exist)
         cur = b->element;
         while (cur != NULL) {
             result->addElement(cur->data);
             cur = cur->next;
         }
-
         return result;
     }
 
     Set *intersections(Set *b) {
         Set *result = new Set();
         Node *curA = element;
-
         while (curA != NULL) {
             Node *curB = b->element;
             bool found = false;
-
             while (curB != NULL) {
                 if (curA->data == curB->data) {
                     found = true;
@@ -83,33 +67,52 @@ public:
                 }
                 curB = curB->next;
             }
-
             if (found) {
                 result->addElement(curA->data);
             }
-
             curA = curA->next;
         }
-
         return result;
     }
 
-
     bool equivalent(Set *b) {
-        // Check if both sets have the same elements
+
         Node *curA = element;
         Node *curB = b->element;
-
-        while (curA != NULL && curB != NULL) {
-            if (curA->data != curB->data) {
-                return false; // Element in set a is not equal to element in set b
+        bool find;
+        while(curB != NULL){
+            curA=element;
+            find=false;
+            while (curA != NULL) {
+                if (curA->data == curB->data) {
+                    find= true;
+                    break;
+                }
+                curA = curA->next;
             }
-            curA = curA->next;
-            curB = curB->next;
+            if(!find){
+                return false;
+            }
+            curB =curB->next;
         }
-
-        // Check if both sets have the same number of elements
-        return curA == NULL && curB == NULL;
+        find=false;
+        curA=element;
+        while(curA != NULL){
+            curB=b->element;
+            find=false;
+            while (curB != NULL) {
+                if (curB->data == curA->data) {
+                    find= true;
+                    break;
+                }
+                curB = curB->next;
+            }
+            if(!find){
+                return false;
+            }
+            curA =curA->next;
+        }
+        return true;
     }
 
     void listAll() {

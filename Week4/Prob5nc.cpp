@@ -1,9 +1,6 @@
 //
 // Created by LINBEI on 10/2/2023.
 //
-//
-// Created by LINBEI on 10/2/2023.
-//
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -106,14 +103,11 @@ public:
 
     void insertionSort() {
         Node *sorted = NULL;
-
         Node *ptr = list;
         while (ptr != NULL) {
             Node *next = ptr->getNext();
-
             ptr->setPre(NULL);
             ptr->setNext(NULL);
-
             if (sorted == NULL || sorted->getData() >= ptr->getData()) {
                 ptr->setNext(sorted);
                 if (sorted != NULL) {
@@ -136,7 +130,6 @@ public:
         }
         list = sorted;
     }
-
 
     void print() {
         Node *cur = list;
@@ -168,3 +161,4 @@ int main() {
     l->selectionSort();
     l->print();
 }
+
