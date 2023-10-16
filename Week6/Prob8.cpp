@@ -49,6 +49,7 @@ public:
 	*/
 	void addElement(Grid *g)
 	{
+
 	}
 	/*
 	remove an element from top and return a pointer point to the element.
@@ -56,6 +57,7 @@ public:
 	*/
 	Grid *removeElement()
 	{
+
 	}
 	void printPath()
 	{
@@ -108,6 +110,25 @@ public:
 	*/
 	void initMaze(int s)
 	{
+        int j, k;
+        Grid *cur, *pre;
+        maze = new Grid();
+        pre = maze;
+        for(j = 0;j < s;j ++)
+        {
+            for(k = 0;k < s;k ++)
+            {
+                cur = new Grid(rand() % 5 == 0);
+                pre->setDir(RIGHT, cur);
+                cur->setDir(LEFT, pre);
+                pre = cur;
+            }
+            pre = maze->getDir(DOWN);
+            cur = new Grid();
+            pre->setDir(DOWN, cur);
+            cur->setDir(UP, pre);
+            pre = cur;
+        }
 	}
 	/*
 	function getPath
@@ -121,6 +142,7 @@ public:
 	*/
 	List *getPath()
 	{
+
 	}
 	void printMaze()
 	{
@@ -145,5 +167,5 @@ int main()
 {
 	Maze *maze = new Maze();
 	maze->printMaze();
-	maze->getPath()->printPath();
+//	maze->getPath()->printPath();
 }
