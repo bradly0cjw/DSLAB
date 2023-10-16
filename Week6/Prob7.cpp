@@ -98,9 +98,8 @@ public:
     */
     void initMaze(int s) {
 
-        maze = new int*[s];
-        for (int i = 0; i < s; ++i)
-        {
+        maze = new int *[s];
+        for (int i = 0; i < s; ++i) {
             maze[i] = new int[s]();
         }
         srand(time(NULL));
@@ -119,7 +118,6 @@ public:
     }
 
 
-
     /*
     function getPath
     This function will find a path between start point and finish point.
@@ -131,7 +129,33 @@ public:
     如果找不到路徑的話 list 就會是空的
     */
     List *getPath() {
+        List *path = new List();
+        DFS(0, 0, path);
+        return path;
+    }
 
+    bool DFS(int r, int c, List *path) {
+        // If out of bound
+        if (r < 0 || c < 0 || r >= SIZE || c >= SIZE || maze[r][c] != 0)
+            return false;
+
+        // Mark as Visited
+        maze[r][c] = 2;
+        Node tmpNode(r, c);
+        path->addElement(tmpNode.getRow(), tmpNode.getCol());
+
+        // If destination is reached
+        if (r == SIZE - 1 && c == SIZE - 1)
+            return true;
+
+        // Moving forward
+        if (DFS(r + 1, c, path) || DFS(r, c + 1, path) || DFS(r - 1, c, path) || DFS(r, c - 1, path))
+            return true;
+
+        // If no path is found, remove the node from the path and mark cell as unvisited
+        path->removeElement();
+        maze[r][c] = 0;
+        return false;
     }
 
     void printMaze() {
@@ -141,7 +165,7 @@ public:
         for (j = 0; j < SIZE; j++) {
             for (k = 0; k < SIZE; k++) {
                 if (maze[j][k] == 0)
-                    cout << " ";
+                    cout << "0";
                 else if (maze[j][k] == 1)
                     cout << "*";
             }
