@@ -136,7 +136,7 @@ public:
                 for (int j = 0; j < s; j++) {
                     if (wallCount >= s * s * 0.2) return;
                     if (rand() % 5 == 0 && maze[i * s + j].getState() != 1 &&
-                        (!(i == 0 && j == 0) || !(i == s - 1 && j == s - 1))) {
+                            (!(i == 0 && j == 0) && !(i == s - 1 && j == s - 1))) {
                         maze[i * s + j].setState(1);
                         wallCount++;
                     }
@@ -167,12 +167,9 @@ public:
     }
 
     void DFS(Grid *start, Grid *finish, List *path, bool &found) {
-        // directions
-        const int dx[4] = {-1, 0, 1, 0};
-        const int dy[4] = {0, 1, 0, -1};
 
         // mark the cell as visited
-        start->setState(1);
+        start->setState(2);
         path->addElement(start);
 
         // if the current cell is the finish cell
@@ -191,7 +188,9 @@ public:
         // if no path is found, we need to backtrack
         if (!found) {
             path->removeElement();
+            start->setState(0);
         }
+
     }
 
     void printMaze() {
