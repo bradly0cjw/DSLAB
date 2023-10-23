@@ -107,7 +107,7 @@ public:
         while (wallCounter < s * s * 0.2) {
             for (int i = 0; i < s; i++) {
                 for (int j = 0; j < s; j++) {
-                    if (rand() % 5 == 0 && maze[i][j] != 1 && !(i == 0 && j == 0) && !(i == s - 1 && j == s - 1)) {
+                    if (rand() % 5 == 0 && maze[i][j] != 1 && (!(i == 0 && j == 0) || !(i == s - 1 && j == s - 1))) {
                         maze[i][j] = 1;
                         wallCounter++;
                     }
