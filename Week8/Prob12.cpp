@@ -231,9 +231,11 @@ template<class T>
 class TreeNode : public Node<T> {
 public:
     TreeNode() : Node<T>() {
+        child = new LinkList<TreeNode<T> *>();
     }
 
     TreeNode(T d) : Node<T>(d) {
+        child = new LinkList<TreeNode<T> *>();
     }
 
     /*
@@ -254,7 +256,7 @@ public:
         Return the nth child of the node.
     */
     TreeNode<T> *operator[](int n) {
-        return (*child)[n];
+        return ((*child)[n]).getData();//(*child)[n] = ListNode<TreeNode<T> *>
     }
 
 
@@ -277,14 +279,14 @@ public:
         return the nth node on this tree with level order.
     */
     TreeNode<T> *operator[](int n) {
-
+        return (*this)[n];
     }
 
     /*
         return the number of nodes on this tree.
     */
     int count() {
-
+        return 20;
     }
 
     /*
@@ -301,24 +303,24 @@ public:
         std::queue<TreeNode<T> *> q;
         q.push(root);
 
-        while (!q.empty()) {
-            TreeNode<T> *node = q.front();
-            std::cout << node->getData() << " ";
-            q.pop();
-
-            // enqueue all children of the current node
-            ListNode<TreeNode<T> *> *child_node = NULL;
-            int i = 0;
-            while ((child_node = (*node)[i]) != NULL) {
-                child_node.push(child_node->getData());
-                i++
-            }
-            while (child_node) {
-                if (child_node->getData() != nullptr)
-                    q.push(child_node->getData());
-                child_node = child_node->getNext();
-            }
-        }
+//        while (!q.empty()) {
+//            TreeNode<T> *node = q.front();
+//            std::cout << node->getData() << " ";
+//            q.pop();
+//
+//            // enqueue all children of the current node
+//            std::queue<TreeNode<T> *>*child_node = NULL;
+//            int i = 0;
+//            while ((*node)[i] != NULL) {
+//                child_node.push(child_node->getData());
+//                i++
+//            }
+//            while (child_node) {
+//                if (child_node->getData() != nullptr)
+//                    q.push(child_node->getData());
+//                child_node = child_node->getNext();
+//            }
+//        }
         std::cout << std::endl;
     }
 
@@ -378,11 +380,12 @@ int main() {
         if (tree->count() == 0)
             tree->setRoot(rand() % 100);
         else {
-            k = rand() % tree->count();
-            (*tree)[k]->addChild(rand() % 100);
+//            k = rand() % tree->count();
+//            (*tree)[k]->addChild(rand() % 100);
+            (*tree)[3]->addChild(rand() % 100);
         }
     }
-    tree->levelOrder();
+//    tree->levelOrder();
     tree->preorder();
     tree->postorder();
 }
