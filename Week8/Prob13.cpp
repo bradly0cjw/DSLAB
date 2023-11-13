@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <ctime>
 
+#define SIZE 100
+
 template<class T>
 class Node {
 public:
@@ -216,6 +218,17 @@ public:
         std::cout << std::endl;
     }
 
+    int size() {
+        ListNode<T> *temp = head;
+        int count = 0;
+        if (head == NULL)
+            return 0;
+        while ((temp = temp->getNext())) {
+            ++count;
+        }
+        return ++count;
+    }
+
 protected:
     ListNode<T> *head, *tail;
 };
@@ -228,35 +241,42 @@ template<class T>
 class TreeNode : public Node<T> {
 public:
     TreeNode() : Node<T>() {
+        child = new LinkList<TreeNode<T> *>();
     }
 
     TreeNode(T d) : Node<T>(d) {
+        child = new LinkList<TreeNode<T> *>();
     }
 
     /*
         Add a child to this node.
     */
     void addChild(TreeNode *n) {
-        chile->addFromTail(n);
+        child->addFromTail(n);
     }
 
     /*
         Add a child to this node.
     */
     void addChild(T d) {
-        chile->addFromTail(new TreeNode(d));
+        TreeNode<T> *n = new TreeNode<T>(d);
+        child->addFromTail(n);
     }
 
     /*
         Return the nth child of the node.
     */
     TreeNode<T> *operator[](int n) {
-        return (*chile)[n];
+        if (n >= child->size()) {
+            return NULL;
+        } else {
+            return (*child)[n].getData();
+        }
     }
 
 
 private:
-    LinkList<TreeNode<T> *> *chile;
+    LinkList<TreeNode<T> *> *child;
 };
 
 /*
@@ -264,45 +284,178 @@ private:
 
 */
 template<class T>
+class Queue {
+public:
+    Queue() {
+        top = 0;
+        bot = 0;
+        for (int i = 0; i < SIZE; i++)
+            data[i] = NULL;
+    }
+
+    ~Queue() {
+        for (int i = 0; i < SIZE; i++)
+            delete data[i];
+    }
+
+    int enqueue(T element) {
+        if ((top + 1) % SIZE == bot) {
+            return -1; // Queue is full
+        }
+        data[top] = new T(element);
+        top = (top + 1) % SIZE;
+        return 1;
+    }
+
+    T dequeue() {
+        if (top == bot) {
+            return T(); // Queue is empty, return default constructed T
+        }
+        T *temp = data[bot];
+        bot = (bot + 1) % SIZE;
+        T ret = *temp;
+        delete temp;
+        return ret;
+    }
+
+private:
+    T *data[SIZE];
+    int top, bot;
+};
+
+template<class T>
 class Tree {
 public:
     Tree() {
+        root = NULL;
     }
 
     /*
         return the nth node on this tree with level order.
     */
     TreeNode<T> *operator[](int n) {
+        Queue<TreeNode<T> *> *queue = new Queue<TreeNode<T> *>();
+        queue->enqueue(root);
+        TreeNode<T> *node = NULL;
+        int nodeCount = 0;
+        while ((node = queue->dequeue()) != NULL) {
+            if (nodeCount == n) {
+                free(queue);
+                return node;
+            }
+            nodeCount++;
+            int i = 0;
+            TreeNode<T> *child = NULL;
+            while ((child = (*node)[i]) != NULL) {
+                queue->enqueue(child);
+                i++;
+            }
+        }
+        free(queue);
+        return NULL;
     }
 
     /*
         return the number of nodes on this tree.
     */
     int count() {
+        return countNodes(root);
     }
 
+    int countNodes(TreeNode<T> *node) {
+        int count = 0;
+        Queue<TreeNode<T> *> *queue = new Queue<TreeNode<T> *>();
+        queue->enqueue(node);
+        TreeNode<T> *CurrentNode = NULL;
+        if (node == NULL) {
+            free(queue);
+            return 0;
+        }
+        while ((CurrentNode = queue->dequeue()) != NULL) {
+            count++;
+            int i = 0;
+            TreeNode<T> *child = NULL;
+            while (CurrentNode != NULL && (child = (*CurrentNode)[i]) != NULL) {
+                queue->enqueue(child);
+                i++;
+            }
+        }
+        free(queue);
+        return count;
+    }
     /*
         print all the node on this tree with level order.
     */
     void levelOrder() {
+        levelOrder(root);
+        std::cout << std::endl;
     }
 
+    void levelOrder(TreeNode<T> *node) {
+        if (node == NULL) {
+            return;
+        }
+        Queue<TreeNode<T> *> *queue = new Queue<TreeNode<T> *>();
+        queue->enqueue(node);
+        TreeNode<T> *currentNode = NULL;
+        while ((currentNode = queue->dequeue()) != NULL) {
+            std::cout << currentNode->getData() << " ";
+            int i = 0;
+            TreeNode<T> *child = NULL;
+            while ((child = (*currentNode)[i]) != NULL) {
+                queue->enqueue(child);
+                i++;
+            }
+        }
+    }
     /*
         print all the node on this tree with preorder.
     */
     void preorder() {
+        preorder(root);
+        std::cout << std::endl;
+    }
+
+    void preorder(TreeNode<T> *root) {
+        if (root == NULL)
+            return;
+        std::cout << root->getData() << " ";
+        int i = 0;
+        TreeNode<T> *child = NULL;
+        while ((child = (*root)[i]) != NULL) {
+            preorder(child);
+            i++;
+        }
     }
 
     /*
         print all the node on this tree with postorder.
     */
     void postorder() {
+        postorder(root);
+        std::cout << std::endl;
     }
 
+    void postorder(TreeNode<T> *root) {
+        if (root == NULL)
+            return;
+        int i = 0;
+        TreeNode<T> *child = NULL;
+        while ((child = (*root)[i]) != NULL) {
+            postorder(child);
+            i++;
+        }
+        std::cout << root->getData() << " ";
+    }
     /*
         set the root of this tree.
     */
     void setRoot(T d) {
+        root = new TreeNode<T>(d);
+    }
+
+    TreeNode<T> *getRoot() {
+        return root;
     }
 
 private:
@@ -376,7 +529,41 @@ public:
         Convert a general tree to sibling tree
     */
     static BinaryTree<T> *convertFromGeneralTree(Tree<T> *tree) {
+        if (tree->count() == 0) {
+            return new BinaryTree<T>();
+        }
 
+        BinaryTree<T> *binaryTree = new BinaryTree<T>();
+        binaryTree->root = new BinaryTreeNode<T>(tree->getRoot()->getData());
+
+        Queue<TreeNode<T> *> *queueGeneral = new Queue<TreeNode<T> *>();
+        Queue<BinaryTreeNode<T> *> *queueBinary = new Queue<BinaryTreeNode<T> *>();
+
+        queueGeneral->enqueue(tree->getRoot());
+        queueBinary->enqueue(binaryTree->root);
+
+        while (TreeNode<T> *nodeGeneral = queueGeneral->dequeue()) {
+            BinaryTreeNode<T> *nodeBinary = queueBinary->dequeue();
+
+            if (TreeNode<T> *firstChild = (*nodeGeneral)[0]) {
+                nodeBinary->setLeft(new BinaryTreeNode<T>(firstChild->getData()));
+                queueGeneral->enqueue(firstChild);
+                queueBinary->enqueue(nodeBinary->getLeft());
+
+                BinaryTreeNode<T> *currentBinarySibling = nodeBinary->getLeft();
+                int i = 1;
+                while (TreeNode<T> *nextGeneralSibling = (*nodeGeneral)[i]) {
+                    currentBinarySibling->setRight(new BinaryTreeNode<T>(nextGeneralSibling->getData()));
+                    currentBinarySibling = currentBinarySibling->getRight();
+
+                    queueGeneral->enqueue(nextGeneralSibling);
+                    queueBinary->enqueue(currentBinarySibling);
+                    i++;
+                }
+            }
+        }
+
+        return binaryTree;
     }
 
     virtual BinaryTreeNode<T> *insert(T d) {

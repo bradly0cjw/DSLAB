@@ -218,20 +218,20 @@ public:
         std::cout << std::endl;
     }
 
-    /*
-    int size() const
+
+    int size()
     {
         ListNode<T> *temp = head;
         int count = 0;
-        while(temp != NULL && (temp = temp->getNext()) && temp != tail)
+        if (head == NULL)
+            return 0;
+        while ((temp = temp->getNext()))
         {
             ++count;
         }
         return ++count;
-    }*/
-    int getFirst() const {
-        return head->getData()->getData();
     }
+
 protected:
     ListNode<T> *head, *tail;
 };
@@ -245,49 +245,37 @@ template<class T>
 class TreeNode : public Node<T> {
 public:
     TreeNode() : Node<T>() {
-        // child = new LinkList<TreeNode<T> *>();
+        child = new LinkList<TreeNode<T> *>();
     }
 
     TreeNode(T d) : Node<T>(d) {
-        // child = new LinkList<TreeNode<T> *>();
+        child = new LinkList<TreeNode<T> *>();
     }
 
     /*
         Add a child to this node.
     */
     void addChild(TreeNode *n) {
-        child->addFromHead(n);
+        child->addFromTail(n);
     }
 
     /*
         Add a child to this node.
     */
     void addChild(T d) {
-        printf("addchild = %d\n", d);
-        child->addFromHead(new TreeNode(d));
-        printf("child_first = %d\n", child->getFirst());
-        //child->addAfter( child, new TreeNode(d) );
+        TreeNode<T> *n = new TreeNode<T>(d);
+        child->addFromTail(n);
     }
 
     /*
         Return the nth child of the node.
     */
     TreeNode<T> *operator[](int n) {
-//        ListNode<TreeNode<T> *> *j = child->exist(this);
-//        if(j!=NULL){
-//            return ((j)[n]).getData();
-//        }
-//        return NULL;
-        try {
-            //if (n >= child->size())
-            //  throw std::invalid_argument("index does not exist.");
+        if (n >= child->size()) {
+            return NULL;
+        } else {
             return (*child)[n].getData();
         }
-        catch (std::invalid_argument &e) {
-            printf("%s", e.what());
-            return NULL;
-        }
-//        return (*child)[n].getData();
 //      return ((*child)[n]).getData();//(*child)[n] = ListNode<TreeNode<T> *>
 
     }
@@ -307,24 +295,33 @@ public:
     Queue() {
         top = 0;
         bot = 0;
+        for (int i = 0; i < SIZE; i++)
+            data[i] = NULL;
+    }
+
+    ~Queue() {
+        for (int i = 0; i < SIZE; i++)
+            delete data[i];
     }
 
     int enqueue(T element) {
         if ((top + 1) % SIZE == bot) {
-            return -1;
+            return -1; // Queue is full
         }
-        data[top] = &element;
+        data[top] = new T(element);
         top = (top + 1) % SIZE;
         return 1;
     }
 
     T dequeue() {
         if (top == bot) {
-            return NULL;
+            return T(); // Queue is empty, return default constructed T
         }
         T *temp = data[bot];
         bot = (bot + 1) % SIZE;
-        return *temp;
+        T ret = *temp;
+        delete temp;
+        return ret;
     }
 
 private:
@@ -344,23 +341,23 @@ public:
     */
     TreeNode<T> *operator[](int n) {
         Queue<TreeNode<T> *> *queue = new Queue<TreeNode<T> *>();
-        int nodeCount = 0;
         queue->enqueue(root);
         TreeNode<T> *node = NULL;
-        printf("1nodeCount1 = %d\n", queue->dequeue());
+        int nodeCount = 0;
         while ((node = queue->dequeue()) != NULL) {
             if (nodeCount == n) {
+                free(queue);
                 return node;
             }
             nodeCount++;
             int i = 0;
             TreeNode<T> *child = NULL;
-            printf("nodeCount2 = %d\n", nodeCount);
             while ((child = (*node)[i]) != NULL) {
                 queue->enqueue(child);
                 i++;
             }
         }
+        free(queue);
         return NULL;
     }
 
@@ -368,37 +365,55 @@ public:
         return the number of nodes on this tree.
     */
     int count() {
-        return levelOrder(root);
+        return countNodes(root);
+    }
+
+    int countNodes(TreeNode<T> *node) {
+        int count = 0;
+        Queue<TreeNode<T> *> *queue = new Queue<TreeNode<T> *>();
+        queue->enqueue(node);
+        TreeNode<T> *CurrentNode = NULL;
+        if (node == NULL) {
+            free(queue);
+            return 0;
+        }
+        while ((CurrentNode = queue->dequeue()) != NULL) {
+            count++;
+            int i = 0;
+            TreeNode<T> *child = NULL;
+            while (CurrentNode != NULL && (child = (*CurrentNode)[i]) != NULL) {
+                queue->enqueue(child);
+                i++;
+            }
+        }
+        free(queue);
+        return count;
     }
 
     /*
         print all the node on this tree with level order.
     */
     void levelOrder() {
-        levelOrder(root, 1);
+        levelOrder(root);
+        std::cout << std::endl;
     }
 
-    int levelOrder(TreeNode<T> *root, int fun = 0) {
-        if (root == NULL)
-            return 0;
-        int count = 1;
+    void levelOrder(TreeNode<T> *node) {
+        if (node == NULL) {
+            return;
+        }
         Queue<TreeNode<T> *> *queue = new Queue<TreeNode<T> *>();
-        queue->enqueue(root);
-        TreeNode<T> *node = NULL;
-        printf("count = %d\n", queue->dequeue()->getData());
-        while ((node = queue->dequeue()) != NULL) {
-            if (fun) {
-                std::cout << node->getData() << " ";
-            }
-            count++;
+        queue->enqueue(node);
+        TreeNode<T> *currentNode = NULL;
+        while ((currentNode = queue->dequeue()) != NULL) {
+            std::cout << currentNode->getData() << " ";
             int i = 0;
             TreeNode<T> *child = NULL;
-            while ((child = (*node)[i]) != NULL) {
+            while ((child = (*currentNode)[i]) != NULL) {
                 queue->enqueue(child);
                 i++;
             }
         }
-        return count;
     }
 
 
@@ -407,6 +422,7 @@ public:
     */
     void preorder() {
         preorder(root);
+        std::cout << std::endl;
     }
 
     void preorder(TreeNode<T> *root) {
@@ -426,6 +442,7 @@ public:
     */
     void postorder() {
         postorder(root);
+        std::cout << std::endl;
     }
 
     void postorder(TreeNode<T> *root) {
@@ -436,8 +453,8 @@ public:
         while ((child = (*root)[i]) != NULL) {
             postorder(child);
             i++;
-            std::cout << root->getData() << " ";
         }
+        std::cout << root->getData() << " ";
     }
 
     /*
@@ -454,23 +471,19 @@ private:
 
 int main() {
     Tree<int> *tree = new Tree<int>();
-    srand(unsigned(time(NULL)));
-    int j, k, i, c;
+//    srand(unsigned(time(NULL)));
+    srand(0);
+    int j, k, i;
     for (j = 0; j < 20; j++) {
         if (tree->count() == 0) {
-            c = rand() % 100;
-            //std::cout << c;
-            printf("tree_count = %d & Node_num = %d\n", tree->count(), c);
-            tree->setRoot(c);
+
+            tree->setRoot(rand() % 100);
         } else {
             k = rand() % tree->count();
-            c = rand() % 100;
-            printf("tree_count = %d & Node_num = %d\n", tree->count(), c);
-            std::cout << c;
-            (*tree)[k]->addChild(c);
+            (*tree)[k]->addChild(rand() % 100);
         }
     }
-//    tree->levelOrder();
-    //tree->preorder();
-    //tree->postorder();
+    tree->levelOrder();
+    tree->preorder();
+    tree->postorder();
 }
