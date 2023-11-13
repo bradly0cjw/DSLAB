@@ -1,2 +1,5 @@
-.idea
+\.idea
 *.exe
+*test*.c*
+input*.*
+\cmake*
