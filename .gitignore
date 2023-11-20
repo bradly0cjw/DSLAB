@@ -3,3 +3,6 @@
 *test*.c*
 input*.*
 \cmake*
+*.obj
+*.pdb
+\.vscode
