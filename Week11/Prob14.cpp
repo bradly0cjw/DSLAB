@@ -20,17 +20,27 @@ public:
     //constructure an Expression Tree using a string. The string representing an in-order expression contains operator =, -, *, /, parentheses, and number in floationg point.
     ExpressionTree(string exp) {
         stack<Node *> st;
+        stack<string> ops;
         stringstream ss(exp);
         string token;
         while (ss >> token) {
-            Node *node = new Node{token, nullptr, nullptr};
-            if (token == "+" || token == "-" || token == "*" || token == "/") {
-                node->right = st.top();
+            if (token == "(") {
+                // do nothing
+            } else if (token == "+" || token == "-" || token == "*" || token == "/") {
+                ops.push(token);
+            } else if (token == ")") {
+                Node *right = st.top();
                 st.pop();
-                node->left = st.top();
+                Node *left = st.top();
                 st.pop();
-            }
+                string op = ops.top();
+                ops.pop();
+                Node *node = new Node{op, left, right};
+                st.push(node);
+            } else {
+                Node *node = new Node{token, nullptr, nullptr};
             st.push(node);
+        }
         }
         root = st.top();
         st.pop();
@@ -84,4 +94,15 @@ public:
     double evaluate() { return evaluate(root); }
 };
 
+int main() {
+    ExpressionTree tree("( ( 1 + 2 ) * ( 3 + 4 ) )");
+    tree.inorder();
+    cout << endl;
+    tree.postorder();
+    cout << endl;
+    tree.preorder();
+    cout << endl;
+    cout << tree.evaluate() << endl;
+    return 0;
+}
 

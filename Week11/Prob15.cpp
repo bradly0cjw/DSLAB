@@ -71,3 +71,18 @@ public:
         return heap.size();
     }
 };
+
+int main() {
+    MaxHeap<int> heap;
+    heap.insert(1);
+    heap.insert(2);
+    heap.insert(3);
+    heap.insert(4);
+    heap.insert(5);
+    cout << heap.extract() << endl;
+    cout << heap.extract() << endl;
+    cout << heap.extract() << endl;
+    cout << heap.extract() << endl;
+    cout << heap.extract() << endl;
+    return 0;
+}
