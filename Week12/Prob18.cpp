@@ -58,16 +58,19 @@ public:
     BinaryTreeNode() : Node<T>() {
         left = NULL;
         right = NULL;
+        height = 1;
     }
 
     BinaryTreeNode(T d) : Node<T>(d) {
         left = NULL;
         right = NULL;
+        height = 1;
     }
 
     BinaryTreeNode(BinaryTreeNode<T> *l, BinaryTreeNode<T> *r) : Node<T>() {
         left = l;
         right = r;
+        height = 1;
     }
 
     BinaryTreeNode(T d, BinaryTreeNode<T> *l, BinaryTreeNode<T> *r) : Node<T>(d) {
@@ -103,6 +106,7 @@ public:
         return false;
     }
 
+    int height;
 private:
     BinaryTreeNode<T> *left, *right;
 };
@@ -123,10 +127,73 @@ private:
         inorder(cur->getLeft(), n + 1);
     }
 
-public:
-    AVLTree();
 
-    void insert(T d);
+public:
+    AVLTree() {
+        root = NULL;
+    };
+
+    void insert(T d) {
+        root = insert(root, d);
+    };
+
+    BinaryTreeNode<T> *insert(BinaryTreeNode<T> *node, T d) {
+        if (node == NULL)
+            return (new BinaryTreeNode<T>(d));
+        if (d < node->getData())
+            node->setLeft(insert(node->getLeft(), d));
+        else if (d > node->getData())
+            node->setRight(insert(node->getRight(), d));
+        else
+            return node;
+        node->height = 1 + max(height(node->getLeft()), height(node->getRight()));
+        int balance = getBalance(node);
+        if (balance > 1 && d < node->getLeft()->getData())
+            return rightRotate(node);
+        if (balance < -1 && d > node->getRight()->getData())
+            return leftRotate(node);
+        if (balance > 1 && d > node->getLeft()->getData()) {
+            node->setLeft(leftRotate(node->getLeft()));
+            return rightRotate(node);
+        }
+        if (balance < -1 && d < node->getRight()->getData()) {
+            node->setRight(rightRotate(node->getRight()));
+            return leftRotate(node);
+        }
+        return node;
+    }
+
+    int height(BinaryTreeNode<T> *N) {
+        if (N == NULL)
+            return 0;
+        return N->height;
+    }
+
+    int getBalance(BinaryTreeNode<T> *N) {
+        if (N == NULL)
+            return 0;
+        return height(N->getLeft()) - height(N->getRight());
+    }
+
+    BinaryTreeNode<T> *rightRotate(BinaryTreeNode<T> *y) {
+        BinaryTreeNode<T> *x = y->getLeft();
+        BinaryTreeNode<T> *T2 = x->getRight();
+        x->setRight(y);
+        y->setLeft(T2);
+        y->height = max(height(y->getLeft()), height(y->getRight())) + 1;
+        x->height = max(height(x->getLeft()), height(x->getRight())) + 1;
+        return x;
+    }
+
+    BinaryTreeNode<T> *leftRotate(BinaryTreeNode<T> *x) {
+        BinaryTreeNode<T> *y = x->getRight();
+        BinaryTreeNode<T> *T2 = y->getLeft();
+        y->setLeft(x);
+        x->setRight(T2);
+        x->height = max(height(x->getLeft()), height(x->getRight())) + 1;
+        y->height = max(height(y->getLeft()), height(y->getRight())) + 1;
+        return y;
+    }
 
     void inorder() {
         inorder(root, 0);
@@ -138,7 +205,8 @@ int main() {
     srand(0);
     int j, k, i;
     for (j = 0; j < 20; j++) {
-        tree->insert(rand() % 100);
+        tree->insert(k = rand() % 100);
+        cout << "Insert: " << k << endl;
         tree->inorder();
     }
 }
