@@ -20,7 +20,7 @@ public:
 
 class TrieNode {
 public:
-    std::vector<ChildNode *> children;
+    vector<ChildNode *> children;
     bool isEndOfWord;
 //    int childCount;
     TrieNode *parent;
@@ -146,5 +146,8 @@ int main() {
         } else if (command == "exit") {
             break;
         }
+        if (cin.eof())
+            break;
     }
+    return 0;
 }
