@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <ctime>
 #include <cstdio>
+#include <set>
+#include <sstream>
 
 using namespace std;
 
@@ -235,7 +237,9 @@ public:
     }
 
     void addLink(GraphNode<T> *node) {
-        list->addFromTail(node);
+        if (!exist(node)) { // Check if the node already exists in the list
+            list->addFromTail(node);
+        }
     }
 
     bool exist(GraphNode<T> *node) {
@@ -245,6 +249,10 @@ public:
     }
 
     void remove(GraphNode<T> *node) {
+        ListNode<GraphNode<T> *> *n = list->exist(node);
+        if (n != NULL) {
+            list->remove(n);
+        }
     }
 
     ListNode<GraphNode<T> *> *operator[](int n) {
@@ -294,10 +302,70 @@ public:
     }
 
     void adjMatrix() {
+        int **matrix = new int *[count];
+        for (int i = 0; i < count; i++) {
+            matrix[i] = new int[count];
+            for (int j = 0; j < count; j++) {
+                matrix[i][j] = 0;
+            }
+        }
+
+        ListNode<GraphNode<T> *> *v = vertex->exist((*vertex)[0].getData());
+        int i = 0;
+        while (v != NULL) {
+            ListNode<GraphNode<T> *> *e = (*(v->getData()))[0];
+            while (e != NULL) {
+                int j = 0;
+                while (j < count && (*vertex)[j].getData() != e->getData()) {
+                    j++;
+                }
+                if (j < count) {
+                    matrix[i][j] = 1;
+                }
+                e = e->getNext();
+            }
+            v = v->getNext();
+            i++;
+        }
+
+        for (int i = 0; i < count; i++) {
+            for (int j = 0; j < count; j++) {
+                cout << matrix[i][j];
+            }
+            cout << endl;
+        }
     }
 
+//Prob19.exe<week13/19.in>week13/19.out
     void adjList() {
+        std::set<GraphNode<T> *> visitedNodes;
+        ListNode<GraphNode<T> *> *v = vertex->exist((*vertex)[0].getData());
+        std::ostringstream oss;
+        while (v != NULL) {
+            if (visitedNodes.find(v->getData()) == visitedNodes.end()) { // If the node is not visited
+                visitedNodes.insert(v->getData()); // Mark the node as visited
+                oss << (v->getData()->getData() - 1) << ":";
+                std::set<int> adjNodes;
+                ListNode<GraphNode<T> *> *e = (*(v->getData()))[0];
+                while (e != NULL) {
+                    adjNodes.insert(e->getData()->getData() - 1); // Subtract 1 from the node number
+                    e = e->getNext();
+                }
+                for (auto node: adjNodes) {
+                    oss << node << " ";
+                }
+                std::string str = oss.str();
+                str = str.substr(0, str.size() - 1);  // Remove the trailing space
+                oss.str(""); // Clear the string stream
+                oss << str << "\n"; // Add the modified string with newline
+            }
+            v = v->getNext();
+        }
+        std::string str = oss.str();
+        str = str.substr(0, str.size() - 1);  // Remove the trailing newline
+        cout << str;
     }
+
 
     void BFS(GraphNode<T> *node) {
         LinkList<GraphNode<T> *> *l = new LinkList<GraphNode<T> *>();
@@ -341,6 +409,7 @@ int main() {
     LinkList<GraphNode<int> *> *node = new LinkList<GraphNode<int> *>();
     int j, k, s, a, b, n;
     scanf("%d", &s);
+//    s = 7;
     srand(s);
     n = rand() % 50;
     for (j = 0; j < n; j++)

@@ -6,6 +6,9 @@
 #include <stdexcept>
 #include <ctime>
 #include <cstdio>
+#include <stack>
+#include <set>
+#include <queue>
 
 using namespace std;
 
@@ -316,9 +319,53 @@ public:
     }
 
     void BFS(WeightedGraphVertex<V, E> *v) {
+        std::queue<WeightedGraphVertex<V, E> *> q;
+        std::set<WeightedGraphVertex<V, E> *> visited;
+
+        q.push(v);
+        visited.insert(v);
+
+        while (!q.empty()) {
+            WeightedGraphVertex<V, E> *current = q.front();
+            q.pop();
+            std::cout << current->getData() << " ";
+
+            ListNode<WeightedGraphEdge<V, E> *> *edgeNode = (*current)[0];
+            while (edgeNode != NULL) {
+                WeightedGraphVertex<V, E> *adjacent = edgeNode->getData()->getAnotherEnd(current);
+                if (visited.find(adjacent) == visited.end()) {
+                    q.push(adjacent);
+                    visited.insert(adjacent);
+                }
+                edgeNode = edgeNode->getNext();
+            }
+        }
+//        std::cout << std::endl;
     }
 
     void DFS(WeightedGraphVertex<V, E> *v) {
+        std::stack<WeightedGraphVertex<V, E> *> s;
+        std::set<WeightedGraphVertex<V, E> *> visited;
+
+        s.push(v);
+        visited.insert(v);
+
+        while (!s.empty()) {
+            WeightedGraphVertex<V, E> *current = s.top();
+            s.pop();
+            std::cout << current->getData() << " ";
+
+            ListNode<WeightedGraphEdge<V, E> *> *edgeNode = (*current)[0];
+            while (edgeNode != NULL) {
+                WeightedGraphVertex<V, E> *adjacent = edgeNode->getData()->getAnotherEnd(current);
+                if (visited.find(adjacent) == visited.end()) {
+                    s.push(adjacent);
+                    visited.insert(adjacent);
+                }
+                edgeNode = edgeNode->getNext();
+            }
+        }
+//        std::cout << std::endl;
     }
 
 private:
@@ -343,7 +390,8 @@ int main() {
     WeightedGraph<char, int> *g = new WeightedGraph<char, int>();
     LinkList<WeightedGraphVertex<char, int> *> *node = new LinkList<WeightedGraphVertex<char, int> *>();
     int j, k, n, a, b, w;
-    scanf("%d", &n);
+//    scanf("%d", &n);
+    n = 7;
     srand(n);
     for (j = 0; j < 26; j++)
         node->addFromTail(g->addVertex(j + 'A'));
@@ -359,3 +407,4 @@ int main() {
     g->DFS((*node)[rand() % 26].getData());
     return 0;
 }
+//Prob20.exe<week13/20.in>week13/20.out
