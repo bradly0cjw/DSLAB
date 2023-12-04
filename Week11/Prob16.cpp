@@ -398,15 +398,15 @@ int main() {
     RedBlackTree<string> tree;
     string operation;
     string data;
-    ifstream in(R"(C:\Users\LINBEI\Documents\GitHub\NDHU\DSLAB\Week11\Prob16-1.in)");
+//    ifstream in(R"(C:\Users\LINBEI\Documents\GitHub\NDHU\DSLAB\Week11\Prob16-1.in)");
 //    int n;
 //    cin >> n;
 //    in >> n;
 //    for (int i = 0; i < n; i++) {
 //        cin >> operation >> data;
 //        in >> operation >> data;
-//    while (cin >> operation >> data) {
-    while (in >> operation >> data) {
+    while (cin >> operation >> data) {
+//    while (in >> operation >> data) {
         if (operation == "insert") {
             tree.insert(data);
         } else if (operation == "delete") {
