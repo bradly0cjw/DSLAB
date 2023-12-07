@@ -350,7 +350,6 @@ public:
 //Prob19.exe<week13/19.in>week13/19.out
     void adjList() {
         ListNode<GraphNode<T> *> *v = vertex->exist((*vertex)[0].getData());
-        bool first = true;
         while (v != NULL) {
 //            if(v->getData()->getData() - 1 == 45) {
 //                cout<<"alert";
@@ -363,19 +362,15 @@ public:
                 }
                 e = e->getNext();
             }
+            cout << v->getData()->getData() - 1 << ":";
             if (!adjNodes.empty()) {
-                if (first) {
-                    first = false;
-                } else {
-                    cout << endl;
-                }
-                cout << v->getData()->getData() - 1 << ":";
                 sort(adjNodes.begin(), adjNodes.end());
-                for (int i = 0; i < adjNodes.size() - 1; i++) {
+                for (int i = 0; i < adjNodes.size(); i++) {
                     cout << adjNodes[i] << " ";
                 }
-                cout << adjNodes[adjNodes.size()-1];
+
             }
+            cout<<endl;
             v = v->getNext();
         }
     }
