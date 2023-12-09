@@ -323,21 +323,23 @@ public:
         std::set<WeightedGraphVertex<V, E> *> visited;
 
         q.push(v);
-        visited.insert(v);
 
         while (!q.empty()) {
             WeightedGraphVertex<V, E> *current = q.front();
             q.pop();
-            std::cout << current->getData() << " ";
 
-            ListNode<WeightedGraphEdge<V, E> *> *edgeNode = (*current)[0];
-            while (edgeNode != NULL) {
-                WeightedGraphVertex<V, E> *adjacent = edgeNode->getData()->getAnotherEnd(current);
-                if (visited.find(adjacent) == visited.end()) {
-                    q.push(adjacent);
-                    visited.insert(adjacent);
+            if (visited.find(current) == visited.end()) {
+                visited.insert(current);
+                std::cout << current->getData() << " ";
+
+                ListNode<WeightedGraphEdge<V, E> *> *edgeNode = (*current)[0];
+                while (edgeNode != NULL) {
+                    WeightedGraphVertex<V, E> *adjacent = edgeNode->getData()->getAnotherEnd(current);
+                    if (visited.find(adjacent) == visited.end()) {
+                        q.push(adjacent);
+                    }
+                    edgeNode = edgeNode->getNext();
                 }
-                edgeNode = edgeNode->getNext();
             }
         }
 //        std::cout << std::endl;
@@ -348,21 +350,23 @@ public:
         std::set<WeightedGraphVertex<V, E> *> visited;
 
         s.push(v);
-        visited.insert(v);
 
         while (!s.empty()) {
             WeightedGraphVertex<V, E> *current = s.top();
             s.pop();
-            std::cout << current->getData() << " ";
 
-            ListNode<WeightedGraphEdge<V, E> *> *edgeNode = (*current)[0];
-            while (edgeNode != NULL) {
-                WeightedGraphVertex<V, E> *adjacent = edgeNode->getData()->getAnotherEnd(current);
-                if (visited.find(adjacent) == visited.end()) {
-                    s.push(adjacent);
-                    visited.insert(adjacent);
+            if (visited.find(current) == visited.end()) {
+                visited.insert(current);
+                std::cout << current->getData() << " ";
+
+                ListNode<WeightedGraphEdge<V, E> *> *edgeNode = (*current)[0];
+                while (edgeNode != NULL) {
+                    WeightedGraphVertex<V, E> *adjacent = edgeNode->getData()->getAnotherEnd(current);
+                    if (visited.find(adjacent) == visited.end()) {
+                        s.push(adjacent);
+                    }
+                    edgeNode = edgeNode->getNext();
                 }
-                edgeNode = edgeNode->getNext();
             }
         }
 //        std::cout << std::endl;
@@ -390,16 +394,19 @@ int main() {
     WeightedGraph<char, int> *g = new WeightedGraph<char, int>();
     LinkList<WeightedGraphVertex<char, int> *> *node = new LinkList<WeightedGraphVertex<char, int> *>();
     int j, k, n, a, b, w;
-//    scanf("%d", &n);
-    n = 7;
+    scanf("%d", &n);
+//    n = 7;
     srand(n);
     for (j = 0; j < 26; j++)
         node->addFromTail(g->addVertex(j + 'A'));
     k = rand() % 100;
+//    k = 10;
+//    cout << k << endl;
     for (j = 0; j < k; j++) {
         a = rand() % 26;
         b = rand() % 26;
         w = rand() % 100;
+//        cout << char(a + 'A') << " " << char(b + 'B') << " " << w << endl;
         g->addLink(((*node)[a]).getData(), ((*node)[b]).getData(), w);
     }
     g->BFS((*node)[rand() % 26].getData());
