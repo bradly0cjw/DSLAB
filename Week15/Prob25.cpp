@@ -40,7 +40,6 @@ public:
     T &getData() const {
         return *data;
     }
-
 protected:
     T *data;
 };
@@ -88,7 +87,6 @@ public:
         this->setData(d);
         return *this;
     }
-
 private:
     ListNode *prev, *next;
 };
@@ -215,7 +213,6 @@ public:
         }
         std::cout << std::endl;
     }
-
 protected:
     ListNode<T> *head, *tail;
 };
@@ -238,7 +235,7 @@ public:
             table[k] = data;
         else {
             if (secondTable == NULL)
-                secondTable = new(nothrow) HASH<T1, T2>();
+                secondTable = new Hash<T1, T2>();
             if (secondTable == NULL)
                 return false;
             secondTable->insert(data);
@@ -247,10 +244,15 @@ public:
     }
 
     Pair *search(T1 key) {
+        unsigned int k = HASHfunction(key);
+        if (table[k] != NULL && table[k]->key == key)
+            return table[k];
+        if (secondTable != NULL)
+            return secondTable->search(key);
+        return NULL;
     }
-
 private:
-    Pair *table[100];
+    Pair *table[100] = {NULL};
     Hash *secondTable;
 
     unsigned int HASHfunction(T1 k) {

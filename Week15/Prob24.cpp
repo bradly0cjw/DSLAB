@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <ctime>
 #include <cstdio>
+#include <string>
 
 using namespace std;
 
@@ -216,6 +217,9 @@ public:
         std::cout << std::endl;
     }
 
+    ListNode<T> *getHead() const {
+        return head;
+    }
 protected:
     ListNode<T> *head, *tail;
 };
@@ -241,6 +245,16 @@ public:
     }
 
     Pair *search(T1 key) {
+        unsigned int k = HASHfunction(key);
+        LinkList<Pair *> *list = table[k];
+        ListNode<Pair *> *node = list->getHead();
+        while (node != NULL) {
+            if (node->getData()->key == key) {
+                return node->getData();
+            }
+            node = node->getNext();
+        }
+        return NULL;
     }
 
 private:
