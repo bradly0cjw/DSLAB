@@ -5,6 +5,9 @@
 #include <iostream>
 #include <stdexcept>
 #include <ctime>
+#include <vector>
+
+using namespace std;
 
 template<class T>
 class Node {
@@ -216,8 +219,9 @@ public:
         std::cout << std::endl;
     }
 
+    ListNode<T> *head;
 protected:
-    ListNode<T> *head, *tail;
+    ListNode<T> *tail;
 };
 
 template<class T>
@@ -265,7 +269,6 @@ public:
     void remove(GraphNode<T> *node) {
     }
 
-private:
     LinkList<GraphNode<T> *> *list;
 };
 
@@ -324,7 +327,26 @@ public:
     /*
         return true if this graph is a forest, return false if not.
     */
+    bool DFS(GraphNode<T> *node, std::vector<bool> &visited, GraphNode<T> *parent) {
+        visited[node->getData() - 'A'] = true;
+        for (ListNode<GraphNode<T> *> *i = node->list->head; i != nullptr; i = i->getNext()) {
+            if (!visited[i->getData()->getData() - 'A']) {
+                if (!DFS(i->getData(), visited, node))
+                    return false;
+            } else if (i->getData() != parent)
+                return false;
+        }
+        return true;
+    }
+
     bool isForest() {
+        std::vector<bool> visited(count, false);
+        for (int i = 0; i < count; ++i) {
+            if (!visited[i]) {
+                if (!DFS((*vertex)[i].getData(), visited, NULL))
+                    return false;
+            }
+        }
         return true;
     }
 
