@@ -5,6 +5,9 @@
 #include <iostream>
 #include <stdexcept>
 #include <ctime>
+#include <unordered_map>
+#include <queue>
+#include <limits>
 
 template<class T>
 class Node {
@@ -216,6 +219,15 @@ public:
         std::cout << std::endl;
     }
 
+    // Add begin and end methods for range-based for loop compatibility
+    ListNode<T> *begin() const {
+        return head;
+    }
+
+    ListNode<T> *end() const {
+        return nullptr;
+    }
+
 protected:
     ListNode<T> *head, *tail;
 };
@@ -248,6 +260,10 @@ public:
         catch (std::invalid_argument e) {
             return NULL;
         }
+    }
+
+    LinkList<WeightedGraphEdge<V, E> *> *getList() const {
+        return list;
     }
 
 private:
@@ -288,6 +304,8 @@ public:
     WeightedGraph() {
         vertex = new LinkList<WeightedGraphVertex<V, E> *>();
         edge = new LinkList<WeightedGraphEdge<V, E> *>();
+        vertexCount = 0;
+        edgeCount = 0;
     }
 
     WeightedGraphVertex<V, E> *operator[](int n) {
@@ -332,9 +350,56 @@ public:
         return null if n is not a vertex in this graph
         return the minimum spanning tree with v as root
     */
-    WeightedGraph *shortestPathTree(WeightedGraphVertex<V, E> *v) {
+    WeightedGraph<V, E> *shortestPathTree(WeightedGraphVertex<V, E> *root) {
+        std::unordered_map<WeightedGraphVertex<V, E> *, E> distances;
+        std::unordered_map<WeightedGraphVertex<V, E> *, WeightedGraphVertex<V, E> *> predecessors;
+        std::priority_queue<std::pair<E, WeightedGraphVertex<V, E> *>, std::vector<std::pair<E, WeightedGraphVertex<V, E> *> >, std::greater<std::pair<E, WeightedGraphVertex<V, E> *>>> queue;
+        std::unordered_map<WeightedGraphVertex<V, E> *, bool> visited;
 
+        for (auto v: *vertex) {
+            if (v.getData()->getData() == root->getData()) {
+                distances[v.getData()] = 0;
+            } else {
+                distances[v.getData()] = std::numeric_limits<E>::max();
+            }
+            queue.push(std::make_pair(distances[v.getData()], v.getData()));
+            visited[v.getData()] = false;
+        }
+
+        while (!queue.empty()) {
+            WeightedGraphVertex<V, E> *current_vertex = queue.top().second;
+            queue.pop();
+
+            if (visited[current_vertex]) {
+                continue;
+            }
+            visited[current_vertex] = true;
+
+            for (auto edge: *current_vertex->getList()) {
+                WeightedGraphVertex<V, E> *adjacent_vertex = edge.getData()->getAnotherEnd(current_vertex);
+                E new_distance = distances[current_vertex] + edge.getData()->getData();
+
+                if (new_distance < distances[adjacent_vertex]) {
+                    distances[adjacent_vertex] = new_distance;
+                    predecessors[adjacent_vertex] = current_vertex;
+                    queue.push(std::make_pair(distances[adjacent_vertex], adjacent_vertex));
+                }
+            }
+        }
+        WeightedGraph<V, E> *shortest_path_tree = new WeightedGraph<V, E>();
+        for (auto v: *vertex) {
+            shortest_path_tree->addVertex(v.getData()->getData());
+        }
+        for (auto v: predecessors) {
+            if (v.second) {
+                shortest_path_tree->addLink(shortest_path_tree->operator[](v.first->getData()),
+                                            shortest_path_tree->operator[](v.second->getData()), distances[v.first]);
+            }
+        }
+
+        return shortest_path_tree; // return the shortest path tree
     }
+
 
 private:
     LinkList<WeightedGraphVertex<V, E> *> *vertex;

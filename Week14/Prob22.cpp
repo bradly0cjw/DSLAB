@@ -1,10 +1,10 @@
-//
-// Created by LINBEI on 12/11/2023.
-//
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 #include <ctime>
+#include <vector>
+#include <queue>
+#include <unordered_set>
 
 template<class T>
 class Node {
@@ -40,7 +40,6 @@ public:
     T &getData() const {
         return *data;
     }
-
 protected:
     T *data;
 };
@@ -88,7 +87,6 @@ public:
         this->setData(d);
         return *this;
     }
-
 private:
     ListNode *prev, *next;
 };
@@ -216,6 +214,15 @@ public:
         std::cout << std::endl;
     }
 
+    int size() {
+        int count = 0;
+        ListNode<T> *node = head;
+        while (node != NULL) {
+            count++;
+            node = node->getNext();
+        }
+        return count;
+    }
 protected:
     ListNode<T> *head, *tail;
 };
@@ -250,6 +257,9 @@ public:
         }
     }
 
+    LinkList<WeightedGraphEdge<V, E> *> *getList() {
+        return list;
+    }
 private:
     LinkList<WeightedGraphEdge<V, E> *> *list;
 };
@@ -278,6 +288,9 @@ public:
         return end[1];
     }
 
+    WeightedGraphVertex<V, E> **getEnds() {
+        return end;
+    }
 private:
     WeightedGraphVertex<V, E> *end[2];
 };
@@ -332,10 +345,37 @@ public:
         return null if n is not a vertex in this graph
         return the minimum spanning tree with v as root
     */
-    WeightedGraph *minimumSpanningTree(WeightedGraphVertex<V, E> *v) {
+    WeightedGraph<V, E> *minimumSpanningTree(WeightedGraphVertex<V, E> *v) {
+        WeightedGraph<V, E> *mst = new WeightedGraph<V, E>();
+        std::priority_queue<WeightedGraphEdge<V, E> *, std::vector<WeightedGraphEdge<V, E> *>, std::greater<WeightedGraphEdge<V, E> *>> pq;
+        std::unordered_set<WeightedGraphVertex<V, E> *> visited;
 
+        visited.insert(v);
+        for (int i = 0; i < v->getList()->size(); i++) {
+            pq.push((*v->getList())[i].getData());
+        }
+
+        while (!pq.empty()) {
+            WeightedGraphEdge<V, E> *e = pq.top();
+            pq.pop();
+            WeightedGraphVertex<V, E> *v1 = e->getEnds()[0];
+            WeightedGraphVertex<V, E> *v2 = e->getEnds()[1];
+
+            if (visited.count(v1) && visited.count(v2)) {
+                continue;
+            }
+
+            mst->addLink(v1, v2, e->getData());
+
+            WeightedGraphVertex<V, E> *newVertex = visited.count(v1) ? v2 : v1;
+            visited.insert(newVertex);
+            for (int i = 0; i < newVertex->getList()->size(); i++) {
+                pq.push((*newVertex->getList())[i].getData());
+            }
+        }
+
+        return mst;
     }
-
 private:
     LinkList<WeightedGraphVertex<V, E> *> *vertex;
     LinkList<WeightedGraphEdge<V, E> *> *edge;
@@ -346,7 +386,8 @@ int main() {
     WeightedGraph<char, int> *g = new WeightedGraph<char, int>();
     WeightedGraph<char, int> *tree;
     int j, k, i, l;
-    srand(time(NULL));
+//	srand(time(NULL));
+    srand(0);
     for (j = 0; j < 5; j++) {
         g->addVertex(j + 'a');
     }
