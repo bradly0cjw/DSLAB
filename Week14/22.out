@@ -1,0 +1,11 @@
+a: c(37) e(55) 
+b: 
+c: e(86) a(37) 
+d: e(94) 
+e: c(86) a(55) d(94) e(62) 
+Minimum spanning tree:
+a: c(37) 
+b: 
+c: a(37) e(86) 
+d: e(94) 
+e: c(86) d(94) 

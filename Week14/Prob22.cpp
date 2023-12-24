@@ -2,9 +2,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <ctime>
-#include <vector>
+#include <map>
 #include <queue>
-#include <unordered_set>
+#include <set>
+
+using namespace std;
 
 template<class T>
 class Node {
@@ -40,6 +42,7 @@ public:
     T &getData() const {
         return *data;
     }
+
 protected:
     T *data;
 };
@@ -87,6 +90,7 @@ public:
         this->setData(d);
         return *this;
     }
+
 private:
     ListNode *prev, *next;
 };
@@ -214,15 +218,6 @@ public:
         std::cout << std::endl;
     }
 
-    int size() {
-        int count = 0;
-        ListNode<T> *node = head;
-        while (node != NULL) {
-            count++;
-            node = node->getNext();
-        }
-        return count;
-    }
 protected:
     ListNode<T> *head, *tail;
 };
@@ -242,6 +237,7 @@ public:
     }
 
     void addEdge(WeightedGraphEdge<V, E> *edge) {
+//        std::cout << "Adding edge with weight " << edge->getData() << std::endl;
         list->addFromTail(edge);
     }
 
@@ -257,9 +253,6 @@ public:
         }
     }
 
-    LinkList<WeightedGraphEdge<V, E> *> *getList() {
-        return list;
-    }
 private:
     LinkList<WeightedGraphEdge<V, E> *> *list;
 };
@@ -288,9 +281,6 @@ public:
         return end[1];
     }
 
-    WeightedGraphVertex<V, E> **getEnds() {
-        return end;
-    }
 private:
     WeightedGraphVertex<V, E> *end[2];
 };
@@ -301,6 +291,8 @@ public:
     WeightedGraph() {
         vertex = new LinkList<WeightedGraphVertex<V, E> *>();
         edge = new LinkList<WeightedGraphEdge<V, E> *>();
+        vertexCount = 0;
+        edgeCount = 0;
     }
 
     WeightedGraphVertex<V, E> *operator[](int n) {
@@ -313,6 +305,7 @@ public:
     }
 
     void addLink(WeightedGraphVertex<V, E> *v1, WeightedGraphVertex<V, E> *v2, E w) {
+//    std::cout << "Adding link between " << v1->getData() << " and " << v2->getData() << " with weight " << w << std::endl;
         WeightedGraphEdge<V, E> *edge = new WeightedGraphEdge<V, E>(w, v1, v2);
         v1->addEdge(edge);
         if (v1 != v2)
@@ -341,41 +334,77 @@ public:
         }
     }
 
+
+    bool exist(WeightedGraphVertex<V, E> *v) {
+        ListNode<WeightedGraphVertex<V, E> *> *cur = &(*vertex)[0];
+        while (cur != NULL) {
+            if (cur->getData() == v) {
+                return true;
+            }
+            cur = cur->getNext();
+        }
+        return false;
+    }
+
+
     /*
         return null if n is not a vertex in this graph
         return the minimum spanning tree with v as root
     */
     WeightedGraph<V, E> *minimumSpanningTree(WeightedGraphVertex<V, E> *v) {
+        // Check if v is a vertex in the graph
+        if (!exist(v)) {
+            return NULL;
+        }
+        // Initialize the minimum spanning tree
         WeightedGraph<V, E> *mst = new WeightedGraph<V, E>();
-        std::priority_queue<WeightedGraphEdge<V, E> *, std::vector<WeightedGraphEdge<V, E> *>, std::greater<WeightedGraphEdge<V, E> *>> pq;
-        std::unordered_set<WeightedGraphVertex<V, E> *> visited;
-
-        visited.insert(v);
-        for (int i = 0; i < v->getList()->size(); i++) {
-            pq.push((*v->getList())[i].getData());
+        for (int j = 0; j < 5; j++) {
+            mst->addVertex(j + 'a');
         }
 
+        // Initialize the priority queue and the visited set
+        std::priority_queue<WeightedGraphEdge<V, E> *, std::vector<WeightedGraphEdge<V, E> *>, std::greater<WeightedGraphEdge<V, E> *>> pq;
+        std::set<WeightedGraphVertex<V, E> *> visited;
+
+        // Add v to visited and add all its adjacent edges to pq
+        visited.insert(v);
+        for (int i = 0; (*v)[i] != NULL; i++) {
+            pq.push((*v)[i]->getData());
+        }
+
+        // While pq is not empty
         while (!pq.empty()) {
+            // Dequeue an edge from pq
             WeightedGraphEdge<V, E> *e = pq.top();
             pq.pop();
-            WeightedGraphVertex<V, E> *v1 = e->getEnds()[0];
-            WeightedGraphVertex<V, E> *v2 = e->getEnds()[1];
 
+            // Get the two vertices of e
+            WeightedGraphVertex<V, E> *v1 = e->getAnotherEnd(v);
+            WeightedGraphVertex<V, E> *v2 = e->getAnotherEnd(v1);
+
+            // If both vertices of e are in visited, continue to the next iteration
             if (visited.count(v1) && visited.count(v2)) {
                 continue;
             }
 
-            mst->addLink(v1, v2, e->getData());
+            // Add the unvisited vertex of e to visited
+            WeightedGraphVertex<V, E> *unvisited = visited.count(v1) ? v2 : v1;
+            visited.insert(unvisited);
 
-            WeightedGraphVertex<V, E> *newVertex = visited.count(v1) ? v2 : v1;
-            visited.insert(newVertex);
-            for (int i = 0; i < newVertex->getList()->size(); i++) {
-                pq.push((*newVertex->getList())[i].getData());
+            // Add e to mst
+//            cout << "add edge: " << v1->getData() << " " << v2->getData() << " " << e->getData() << endl;
+            mst->addLink((*mst)[int(v1->getData() - 'a')], (*mst)[int(v2->getData() - 'a')], e->getData());
+
+            // Add all edges adjacent to the unvisited vertex of e to pq
+            for (int i = 0; (*unvisited)[i] != NULL; i++) {
+                pq.push((*unvisited)[i]->getData());
             }
         }
 
+        // Return the minimum spanning tree
         return mst;
     }
+
 private:
     LinkList<WeightedGraphVertex<V, E> *> *vertex;
     LinkList<WeightedGraphEdge<V, E> *> *edge;
@@ -387,7 +416,7 @@ int main() {
     WeightedGraph<char, int> *tree;
     int j, k, i, l;
 //	srand(time(NULL));
-    srand(0);
+    srand(1703420486);
     for (j = 0; j < 5; j++) {
         g->addVertex(j + 'a');
     }
@@ -395,10 +424,13 @@ int main() {
         k = rand() % 5;
         i = rand() % 5;
         l = rand() % 100;
+//        cout << char(k + 'a') << " " << char(i + 'a') << " " << l << endl;
         g->addLink((*g)[k], (*g)[i], l);
     }
     g->adjList();
     tree = g->minimumSpanningTree((*g)[0]);
+    cout << "Minimum spanning tree:" << endl;
     tree->adjList();
     return 0;
 }
+//Prob22.exe>week14/22.out
